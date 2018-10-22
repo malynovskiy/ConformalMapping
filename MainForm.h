@@ -1,5 +1,4 @@
 #pragma once
-#include "../ConformalMapp/constants.h"
 #include <fstream>
 #include <iomanip>
 #include <vector>
@@ -24,6 +23,9 @@ namespace ConformalMapping
 		double D;
 		int k;
 	
+		int xOffset;
+		int yOffset;
+		int zOffset;
 	private:
 		System::Windows::Forms::PictureBox^  pictureBox1;
 
@@ -38,6 +40,13 @@ namespace ConformalMapping
 		System::Windows::Forms::Label^  label4;
 		System::Windows::Forms::TextBox^  textBox4;
 		System::Windows::Forms::Button^  button3;
+
+		System::Windows::Forms::Button^  scaleUp;
+		System::Windows::Forms::Button^  scaleDown;
+		System::Windows::Forms::Button^  moveRight;
+		System::Windows::Forms::Button^  moveLeft;
+		System::Windows::Forms::Button^  moveUp;
+		System::Windows::Forms::Button^  moveDown;
 
 		System::ComponentModel::Container ^components;
 
@@ -60,6 +69,13 @@ namespace ConformalMapping
 		System::Void button1_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void button2_Click(System::Object^  sender, System::EventArgs^  e);
 		System::Void button3_Click(System::Object^  sender, System::EventArgs^  e);
+
+		System::Void scaleUp_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void scaleDown_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void moveRight_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void moveLeft_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void moveUp_Click(System::Object^  sender, System::EventArgs^  e);
+		System::Void moveDown_Click(System::Object^  sender, System::EventArgs^  e);
 	
 		void copyBuffers(std::vector<std::vector<double>> &tx, std::vector<std::vector<double>> &ty);
 	};

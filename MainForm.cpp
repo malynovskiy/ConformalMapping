@@ -1,5 +1,27 @@
 #include "MainForm.h"
 
+float H = 8.0f;
+float L = 10.0f;
+
+float H1 = 0.785f;
+float H2 = 0.485f;
+float L1 = 1.28f;
+float L2 = 2.06f;
+
+float R = 5.0f;
+
+const int m = 8;
+const int n = 10;
+
+int nummIterations = 10;
+
+float phiLower = 1.0f;
+float phiHigher = 4.0f;
+
+float deltaPhi = ((phiHigher - phiLower)/m);
+
+float sigma = 0.2;
+
 template <typename T>
 inline T square(T a)
 {
@@ -42,6 +64,10 @@ void ConformalMapping::MainForm::InitData()
 	Gamma = 0;
 	Q = 0;
 	k = 0;
+
+	xOffset = 100;
+	yOffset = 200;
+	zOffset = 120;
 }
 
 void ConformalMapping::MainForm::InitialMapping()
@@ -50,24 +76,22 @@ void ConformalMapping::MainForm::InitialMapping()
 
 	// Initial approximations of boundary nodes
 	// Optimize conditions of loops
+
 	for (int j = 0; j < n + 1; j++)
 	{
-		x[0][j] = (L / (n + 1)) * j;						//	AB
-		y[0][j] = 0;										//
+		x[0][j] = ((L1 - 1) / (n + 1)) * j + phiLower;						//	AB
+		y[0][j] = sqrt((x[0][j] * x[0][j]) - phiLower);						//
 
-		y[m][j] = (-R / (n + 1)) * j - H;					//
-		x[m][j] = sqrt(R*R - pow((y[m][j] + H + R), 2));	//	DC	
+		x[m][j] = ((L2 - 2) / (n + 1)) * j + phiHigher/2;					//	DC	
+		y[m][j] = sqrt((x[m][j] * x[m][j]) - phiHigher);					//
 	}
 	for (int i = 0; i < m + 1; i++)
 	{
-		x[i][0] = 0;										//	AD
-		y[i][0] = (-H / (m + 1)) * i;						//
+		x[i][0] = ((phiHigher/2 - phiLower) / (m + 1)) * i + phiLower;		//	AD
+		y[i][0] = 0;														//
 
-		x[i][n] = ((L - R) / (m + 1)) * i + R;				//	B*C
-		y[i][n] = -H - R;									//
-
-		x[i][n] = L;										//	BB*
-		y[i][n] = ((-H - R) / (m + 1)) * i;					//
+		y[i][n] = ((H1 - H2)/(m + 1)) * i + H2;								//	BB*
+		x[i][n] = 1 / y[i][n];												//
 	}
 
 	// Initial approximations of internal nodes
@@ -175,7 +199,7 @@ System::Void ConformalMapping::MainForm::drawConformalMapping(System::Drawing::C
 	{
 		for (int j = 0; j < n + 1; j++)
 		{
-			points[(n + 1) * i + j] = Drawing::Point((x[i][j] * 22) + 100, (y[i][j] * 22) + 350);
+			points[(n + 1) * i + j] = Drawing::Point((x[i][j] * zOffset) + xOffset, (-y[i][j] * zOffset) + yOffset);
 			rect[(n + 1) * i + j] = Drawing::Rectangle(points[(n + 1) * i + j], Drawing::Size(1.0f, 1.0f));
 		}
 	}
@@ -206,6 +230,15 @@ void ConformalMapping::MainForm::InitComponents()
 	this->label4 = (gcnew System::Windows::Forms::Label());
 	this->textBox4 = (gcnew System::Windows::Forms::TextBox());
 	this->button3 = (gcnew System::Windows::Forms::Button());
+
+	this->scaleUp = (gcnew System::Windows::Forms::Button());
+	this->scaleDown = (gcnew System::Windows::Forms::Button());
+
+	this->moveRight = (gcnew System::Windows::Forms::Button());
+	this->moveLeft = (gcnew System::Windows::Forms::Button());
+	this->moveUp = (gcnew System::Windows::Forms::Button());
+	this->moveDown = (gcnew System::Windows::Forms::Button());
+
 	(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->BeginInit();
 	this->SuspendLayout();
 	// 
@@ -244,7 +277,7 @@ void ConformalMapping::MainForm::InitComponents()
 	this->label1->AutoSize = true;
 	this->label1->Font = (gcnew System::Drawing::Font(L"Lucida Bright", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 		static_cast<System::Byte>(0)));
-	this->label1->Location = System::Drawing::Point(20, 429);
+	this->label1->Location = System::Drawing::Point(20, 470);
 	this->label1->Name = L"label1";
 	this->label1->Size = System::Drawing::Size(68, 20);
 	this->label1->TabIndex = 3;
@@ -255,7 +288,7 @@ void ConformalMapping::MainForm::InitComponents()
 	this->label2->AutoSize = true;
 	this->label2->Font = (gcnew System::Drawing::Font(L"Lucida Bright", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 		static_cast<System::Byte>(0)));
-	this->label2->Location = System::Drawing::Point(178, 429);
+	this->label2->Location = System::Drawing::Point(178, 470);
 	this->label2->Name = L"label2";
 	this->label2->Size = System::Drawing::Size(25, 20);
 	this->label2->TabIndex = 4;
@@ -266,7 +299,7 @@ void ConformalMapping::MainForm::InitComponents()
 	this->label3->AutoSize = true;
 	this->label3->Font = (gcnew System::Drawing::Font(L"Lucida Bright", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 		static_cast<System::Byte>(0)));
-	this->label3->Location = System::Drawing::Point(415, 429);
+	this->label3->Location = System::Drawing::Point(415, 470);
 	this->label3->Name = L"label3";
 	this->label3->Size = System::Drawing::Size(22, 20);
 	this->label3->TabIndex = 5;
@@ -275,7 +308,7 @@ void ConformalMapping::MainForm::InitComponents()
 	// textBox1
 	// 
 	this->textBox1->BackColor = System::Drawing::SystemColors::Menu;
-	this->textBox1->Location = System::Drawing::Point(84, 429);
+	this->textBox1->Location = System::Drawing::Point(84, 470);
 	this->textBox1->Name = L"textBox1";
 	this->textBox1->Size = System::Drawing::Size(88, 20);
 	this->textBox1->TabIndex = 6;
@@ -283,7 +316,7 @@ void ConformalMapping::MainForm::InitComponents()
 	// textBox2
 	// 
 	this->textBox2->BackColor = System::Drawing::SystemColors::Menu;
-	this->textBox2->Location = System::Drawing::Point(200, 429);
+	this->textBox2->Location = System::Drawing::Point(200, 470);
 	this->textBox2->Name = L"textBox2";
 	this->textBox2->Size = System::Drawing::Size(88, 20);
 	this->textBox2->TabIndex = 7;
@@ -291,7 +324,7 @@ void ConformalMapping::MainForm::InitComponents()
 	// textBox3
 	// 
 	this->textBox3->BackColor = System::Drawing::SystemColors::Menu;
-	this->textBox3->Location = System::Drawing::Point(434, 429);
+	this->textBox3->Location = System::Drawing::Point(434, 470);
 	this->textBox3->Name = L"textBox3";
 	this->textBox3->Size = System::Drawing::Size(40, 20);
 	this->textBox3->TabIndex = 8;
@@ -301,7 +334,7 @@ void ConformalMapping::MainForm::InitComponents()
 	this->label4->AutoSize = true;
 	this->label4->Font = (gcnew System::Drawing::Font(L"Lucida Bright", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
 		static_cast<System::Byte>(0)));
-	this->label4->Location = System::Drawing::Point(294, 429);
+	this->label4->Location = System::Drawing::Point(294, 470);
 	this->label4->Name = L"label4";
 	this->label4->Size = System::Drawing::Size(25, 20);
 	this->label4->TabIndex = 9;
@@ -310,7 +343,7 @@ void ConformalMapping::MainForm::InitComponents()
 	// textBox4
 	// 
 	this->textBox4->BackColor = System::Drawing::SystemColors::Menu;
-	this->textBox4->Location = System::Drawing::Point(316, 429);
+	this->textBox4->Location = System::Drawing::Point(316, 470);
 	this->textBox4->Name = L"textBox4";
 	this->textBox4->Size = System::Drawing::Size(88, 20);
 	this->textBox4->TabIndex = 10;
@@ -327,11 +360,83 @@ void ConformalMapping::MainForm::InitComponents()
 	this->button3->Click += gcnew System::EventHandler(this, &ConformalMapping::MainForm::button3_Click);
 	this->button3->Enabled = false;
 	// 
+	// scaleUp
+	// 
+	this->scaleUp->Enabled = false;
+	this->scaleUp->Location = System::Drawing::Point(25, 425);
+	this->scaleUp->Name = L"scaleUp";
+	this->scaleUp->Size = System::Drawing::Size(50, 23);
+	this->scaleUp->TabIndex = 12;
+	this->scaleUp->Text = L"ScaleUp";
+	this->scaleUp->UseVisualStyleBackColor = true;
+	this->scaleUp->Click += gcnew System::EventHandler(this, &ConformalMapping::MainForm::scaleUp_Click);
+	this->scaleUp->Enabled = false;
+	// 
+	// scaleDown
+	// 
+	this->scaleDown->Enabled = false;
+	this->scaleDown->Location = System::Drawing::Point(130, 425);
+	this->scaleDown->Name = L"scaleDown";
+	this->scaleDown->Size = System::Drawing::Size(50, 23);
+	this->scaleDown->TabIndex = 13;
+	this->scaleDown->Text = L"ScaleDown";
+	this->scaleDown->UseVisualStyleBackColor = true;
+	this->scaleDown->Click += gcnew System::EventHandler(this, &ConformalMapping::MainForm::scaleDown_Click);
+	this->scaleDown->Enabled = false;
+	// 
+	// moveRight
+	// 
+	this->moveRight->Enabled = false;
+	this->moveRight->Location = System::Drawing::Point(185, 425);
+	this->moveRight->Name = L"moveRight";
+	this->moveRight->Size = System::Drawing::Size(50, 23);
+	this->moveRight->TabIndex = 14;
+	this->moveRight->Text = L"MoveRight";
+	this->moveRight->UseVisualStyleBackColor = true;
+	this->moveRight->Click += gcnew System::EventHandler(this, &ConformalMapping::MainForm::moveRight_Click);
+	this->moveRight->Enabled = false;
+	// 
+	// moveLeft
+	// 
+	this->moveLeft->Enabled = false;
+	this->moveLeft->Location = System::Drawing::Point(240, 425);
+	this->moveLeft->Name = L"moveLeft";
+	this->moveLeft->Size = System::Drawing::Size(50, 23);
+	this->moveLeft->TabIndex = 15;
+	this->moveLeft->Text = L"MoveLeft";
+	this->moveLeft->UseVisualStyleBackColor = true;
+	this->moveLeft->Click += gcnew System::EventHandler(this, &ConformalMapping::MainForm::moveLeft_Click);
+	this->moveLeft->Enabled = false;
+	// 
+	// moveUp
+	// 
+	this->moveUp->Enabled = false;
+	this->moveUp->Location = System::Drawing::Point(295, 425);
+	this->moveUp->Name = L"moveUp";
+	this->moveUp->Size = System::Drawing::Size(50, 23);
+	this->moveUp->TabIndex = 16;
+	this->moveUp->Text = L"MoveUp";
+	this->moveUp->UseVisualStyleBackColor = true;
+	this->moveUp->Click += gcnew System::EventHandler(this, &ConformalMapping::MainForm::moveUp_Click);
+	this->moveUp->Enabled = false;
+	// 
+	// moveDown
+	// 
+	this->moveDown->Enabled = false;
+	this->moveDown->Location = System::Drawing::Point(350, 425);
+	this->moveDown->Name = L"moveDown";
+	this->moveDown->Size = System::Drawing::Size(50, 23);
+	this->moveDown->TabIndex = 17;
+	this->moveDown->Text = L"MoveDown";
+	this->moveDown->UseVisualStyleBackColor = true;
+	this->moveDown->Click += gcnew System::EventHandler(this, &ConformalMapping::MainForm::moveDown_Click);
+	this->moveDown->Enabled = false;
+	// 
 	// MainForm
 	// 
 	this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 	this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-	this->ClientSize = System::Drawing::Size(500, 458);
+	this->ClientSize = System::Drawing::Size(500, 500);
 	this->Controls->Add(this->button3);
 	this->Controls->Add(this->textBox4);
 	this->Controls->Add(this->label4);
@@ -344,6 +449,13 @@ void ConformalMapping::MainForm::InitComponents()
 	this->Controls->Add(this->button2);
 	this->Controls->Add(this->button1);
 	this->Controls->Add(this->pictureBox1);
+
+	this->Controls->Add(this->scaleUp);
+	this->Controls->Add(this->scaleDown);
+	this->Controls->Add(this->moveRight);
+	this->Controls->Add(this->moveLeft);
+	this->Controls->Add(this->moveUp);
+	this->Controls->Add(this->moveDown);
 	this->Name = L"MainForm";
 	this->Text = L"MainForm";
 	(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->pictureBox1))->EndInit();
@@ -361,6 +473,14 @@ System::Void ConformalMapping::MainForm::button1_Click(System::Object^  sender, 
 	button1->Enabled = false;
 	button2->Enabled = true;
 	button3->Enabled = true;
+
+	scaleUp->Enabled = true;
+	scaleDown->Enabled = true;
+
+	moveRight->Enabled = true;
+	moveLeft->Enabled = true;
+	moveUp->Enabled = true;
+	moveDown->Enabled = true;
 }
 
 System::Void ConformalMapping::MainForm::button2_Click(System::Object^  sender, System::EventArgs^  e)
@@ -385,6 +505,42 @@ System::Void ConformalMapping::MainForm::button3_Click(System::Object^  sender, 
 	out << std::endl << std::endl;
 }
 
+System::Void ConformalMapping::MainForm::scaleUp_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	zOffset += 20;
+	drawConformalMapping(Color::DarkViolet);
+	showAddInfo();
+}
+System::Void ConformalMapping::MainForm::scaleDown_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	zOffset -= 20;
+	drawConformalMapping(Color::DarkViolet);
+	showAddInfo();
+}
+System::Void ConformalMapping::MainForm::moveRight_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	xOffset += 50;
+	drawConformalMapping(Color::DarkViolet);
+	showAddInfo();
+}
+System::Void ConformalMapping::MainForm::moveLeft_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	xOffset -= 50;
+	drawConformalMapping(Color::DarkViolet);
+	showAddInfo();
+}
+System::Void ConformalMapping::MainForm::moveUp_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	yOffset -= 50;
+	drawConformalMapping(Color::DarkViolet);
+	showAddInfo();
+}
+System::Void ConformalMapping::MainForm::moveDown_Click(System::Object^  sender, System::EventArgs^  e)
+{
+	yOffset += 50;
+	drawConformalMapping(Color::DarkViolet);
+	showAddInfo();
+}
 void ConformalMapping::MainForm::copyBuffers(std::vector<std::vector<double>> &tx, std::vector<std::vector<double>> &ty)
 {
 	for (int i = 0; i < m + 1; i++)
