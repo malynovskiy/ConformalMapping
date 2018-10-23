@@ -10,8 +10,8 @@ float L2 = 2.06f;
 
 float R = 5.0f;
 
-const int m = 8;
-const int n = 10;
+const int m = 15;
+const int n = 20;
 
 int nummIterations = 10;
 
@@ -65,9 +65,9 @@ void ConformalMapping::MainForm::InitData()
 	Q = 0;
 	k = 0;
 
-	xOffset = 100;
-	yOffset = 200;
-	zOffset = 120;
+	xOffset = -90;
+	yOffset = 250;
+	zOffset = 240;
 }
 
 void ConformalMapping::MainForm::InitialMapping()
@@ -190,22 +190,60 @@ void ConformalMapping::MainForm::Mapping()
 
 System::Void ConformalMapping::MainForm::drawConformalMapping(System::Drawing::Color c)
 {
-	array<Point> ^points;
-	points = gcnew array<Point>((n + 1)*(m + 1));
-	array<Rectangle>^ rect;
-	rect = gcnew array<Rectangle>((n + 1)*(m + 1));
+	array<PointF> ^points;
+	points = gcnew array<PointF>((n + 1)*(m + 1));
+	array<RectangleF>^ rect;
+	rect = gcnew array<RectangleF>((n + 1)*(m + 1));
 
 	for (int i = 0; i < m + 1; i++)
 	{
 		for (int j = 0; j < n + 1; j++)
 		{
-			points[(n + 1) * i + j] = Drawing::Point((x[i][j] * zOffset) + xOffset, (-y[i][j] * zOffset) + yOffset);
-			rect[(n + 1) * i + j] = Drawing::Rectangle(points[(n + 1) * i + j], Drawing::Size(1.0f, 1.0f));
+			points[(n + 1) * i + j] = Drawing::PointF((x[i][j] * zOffset) + xOffset, (-y[i][j] * zOffset) + yOffset);
+			rect[(n + 1) * i + j] = Drawing::RectangleF(points[(n + 1) * i + j], Drawing::Size(1.0f, 1.0f));
 		}
 	}
 	Graphics ^g = pictureBox1->CreateGraphics();
 	g->Clear(BackColor);
 	g->DrawRectangles(gcnew Pen(c, 2.0f), rect);
+}
+
+System::Void ConformalMapping::MainForm::drawCoordSystem(System::Drawing::Color c)
+{
+	int left = 1;
+	int right = 3;
+	int top = 2;
+	int bottom = 1;
+
+	int lenght = left + right;
+	int height = top + bottom;
+
+	int N = 20;
+	int M = 15;
+
+	array<Point> ^coordPoints;
+	coordPoints = gcnew array<Point>(N + M);
+	array<Rectangle>^ coordRects;
+	coordRects = gcnew array<Rectangle>(N + M);
+
+	for (int i = 0; i < N; i++)
+	{
+		float coordX = (lenght / N) * i - left;
+		coordPoints[i] = Drawing::Point((coordX * zOffset) + xOffset, (0 * zOffset) + yOffset);
+		coordRects[i] = Drawing::Rectangle(coordPoints[i], Drawing::Size(1.0f, 1.0f));
+	}
+
+	for (int j = 0; j < M; j++)
+	{
+		float coordY = (height / M) * j - bottom;
+
+		coordPoints[N + j] = Drawing::Point((0 * zOffset) + xOffset, (-coordY * zOffset) + yOffset);
+		coordRects[N + j] = Drawing::Rectangle(coordPoints[N + j], Drawing::Size(1.0f, 1.0f));
+	}
+
+	Graphics ^g = pictureBox1->CreateGraphics();
+	g->Clear(BackColor);
+	g->DrawRectangles(gcnew Pen(c, 2.0f), coordRects);
 }
 
 System::Void ConformalMapping::MainForm::showAddInfo()

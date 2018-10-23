@@ -64,6 +64,7 @@ namespace ConformalMapping
 		void Mapping();
 
 		System::Void drawConformalMapping(Color c);
+		System::Void drawCoordSystem(Color c);
 		System::Void showAddInfo();
 
 		System::Void button1_Click(System::Object^  sender, System::EventArgs^  e);
